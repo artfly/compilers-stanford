@@ -6,3 +6,7 @@ Lexer for COOL language.
 - follow instructions from docs/PA2.pdf
 - copy cool.flex into /home/compilers/cool/assignments/PA2 and run ``` make lexer ```.
 - run ``` ./lexer FILENAME ``` to see result of lexical analysis or ``` ./mycoolc FILENAME ``` for compilation using provided lexer
+
+## Miscellaneous
+
+For flex syntax highlighting you can use [vim-syntax-extra](https://github.com/justinmk/vim-syntax-extra).
