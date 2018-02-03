@@ -28,7 +28,8 @@ private:
 
 class Method : public Feature {
 public:
-    Method(std::string name, std::string return_type, std::vector<Formal> formals, const Expression &expr) :
+    // TODO: default values
+    Method(std::string name, std::vector<Formal> formals, std::string return_type, const Expression &expr) :
             name(std::move(name)), return_type(std::move(return_type)), formals(std::move(formals)), expr(expr) {}
 
 private:

@@ -10,18 +10,26 @@
 
 class TreeNode {
 public:
-    virtual ~TreeNode() = 0;
+    bool operator==(const TreeNode &rhs) const {
+        return line_number == rhs.line_number;
+    }
 
-    // TODO
-    virtual TreeNode * copy() = 0;
+    bool operator!=(const TreeNode &rhs) const {
+        return !(rhs == *this);
+    }
 
-    virtual void dump(std::ostream & os, int n) = 0;
+public:
+//    virtual ~TreeNode();
+//
+//    // TODO
+//    virtual TreeNode * copy();
+//
+//    virtual void dump(std::ostream & os, int n);
+//
+//    // TODO
+//    virtual TreeNode * set();
 
-    // TODO
-    virtual TreeNode * set() = 0;
-
-protected:
-    int line_number = 0;
+    int line_number;
 };
 
 

@@ -11,7 +11,7 @@
 #include "TreeNode.h"
 #include "Case.h"
 
-class Expression : TreeNode {
+class Expression : public TreeNode {
 };
 
 

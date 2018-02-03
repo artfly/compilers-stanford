@@ -10,21 +10,24 @@
 #include "TreeNode.h"
 #include "Expression.h"
 
+class Expression;
+
 class Case : TreeNode {
 };
 
 
 class Branch : Case {
 public:
-    Branch(std::string name, std::string type_decl, const Expression &expr) :
-            name(std::move(name)), type_decl(std::move(type_decl)), expr(expr) {}
+    Branch(std::string name, std::string type_decl, Expression &expr) : name(std::move(name)),
+                                                                        type_decl(std::move(type_decl)),
+                                                                        expr(expr) {}
 
 private:
     std::string name;
 
     std::string type_decl;
 
-    Expression expr;
+    Expression &expr;
 };
 
 #endif //CASE_H
