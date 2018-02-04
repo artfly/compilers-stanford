@@ -28,7 +28,7 @@ ClassGraph::ClassGraph(std::vector<Class> classes_, std::ostream &err_stream_) :
 
 std::ostream &ClassGraph::semant_error(const Class &cl) {
     semant_errors++;
-    err_stream << cl.filename << ":" << cl.line_number << ": ";
+    err_stream << cl.get_filename() << ":" << cl.get_line_number() << ": ";
     return err_stream;
 }
 
@@ -40,7 +40,7 @@ void ClassGraph::add_base_classes() {
 void ClassGraph::visit(std::pair<const Class &, size_t> cl, std::vector<ClassGraph::Color> &colors) {
     colors[cl.second] = GREY;
     auto parent = std::find_if(classes.begin(), classes.end(),
-                               [&cl](const Class &cur) { return cur.name == cl.first.parent; });
+                               [&cl](const Class &cur) { return cur.get_name() == cl.first.get_parent(); });
 
     if (parent == classes.end()) {
         // parent not found

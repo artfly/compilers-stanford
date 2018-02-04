@@ -5,89 +5,105 @@
 #ifndef CLASS_H
 #define CLASS_H
 
-
 #include <utility>
-#include <vector>
-#include <iostream>
-#include "TreeNode.h"
-#include "Feature.h"
+
+#include "NodeVisitor.h"
+
+class Feature;
 
 class Class : public TreeNode {
 public:
-    Class(std::string name, std::string parent, std::vector<Feature> features, std::string filename) :
-            name(std::move(name)), parent(std::move(parent)), features(std::move(features)),
-            filename(std::move(filename)) {}
+    Class(std::string name, std::string parent, std::string filename,
+          const std::vector<const Feature *> &features, int line_number = 0) :
+            TreeNode(line_number), name(std::move(name)), parent(std::move(parent)),
+            filename(std::move(filename)), features(features) {}
 
-    std::string name;
-    std::string parent;
-
-    bool operator==(const Class &rhs) const {
-        return static_cast<const TreeNode &>(*this) == static_cast<const TreeNode &>(rhs) &&
-               name == rhs.name &&
-               parent == rhs.parent &&
-               filename == rhs.filename;
+    void accept(const NodeVisitor &visitor) const override {
+        visitor.visit(*this);
     }
 
-    bool operator!=(const Class &rhs) const {
-        return !(rhs == *this);
+    const std::string &get_name() const {
+        return name;
     }
 
-    std::string filename;
+    const std::string &get_parent() const {
+        return parent;
+    }
+
+    const std::string &get_filename() const {
+        return filename;
+    }
+
+    const std::vector<const Feature *> &get_features() const {
+        return features;
+    }
+
 private:
 
-    std::vector<Feature> features;
+    const std::string name;
+    const std::string parent;
+    const std::string filename;
 
+    const std::vector<const Feature *> features;
 };
 
 namespace base_classes {
 
-    static constexpr auto STR_TYPE = "String";
-    static constexpr auto OBJ_TYPE = "Object";
-    static constexpr auto SELF_TYPE = "SELF_TYPE";
-    static constexpr auto INT_TYPE = "Int";
-    static constexpr auto NO_CLASS_TYPE = "_no_class";
-    static constexpr auto IO_TYPE = "IO";
-    static constexpr auto BOOL_TYPE = "Bool";
+    namespace types {
+        static constexpr auto STR_TYPE = "String";
+        static constexpr auto OBJ_TYPE = "Object";
+        static constexpr auto SELF_TYPE = "SELF_TYPE";
+        static constexpr auto INT_TYPE = "Int";
+        static constexpr auto NO_CLASS_TYPE = "_no_class";
+        static constexpr auto IO_TYPE = "IO";
+        static constexpr auto BOOL_TYPE = "Bool";
+    }
 
-    static constexpr auto BASE_FILENAME = "<basic class>";
+    static constexpr auto FILENAME = "<basic class>";
 
+    namespace methods {
+        // Object methods
+        static const auto ABORT = Method("abort", types::OBJ_TYPE, {}, NoExpr());
+        static const auto TYPE_NAME = Method("type_name", types::STR_TYPE, {}, NoExpr());
+        static const auto COPY = Method("copy", types::SELF_TYPE, {}, NoExpr());
 
-    static const auto Object = Class(OBJ_TYPE,
-                                          NO_CLASS_TYPE,
-                                          {
-                                                  Method("abort", std::vector<Formal>(), OBJ_TYPE, NoExpr()),
-                                                  Method("type_name", std::vector<Formal>(), STR_TYPE, NoExpr()),
-                                                  Method("copy", std::vector<Formal>(), SELF_TYPE, NoExpr())
-                                          },
-                                          BASE_FILENAME);
+        // IO methods
+        static const auto OUT_STRING = Method("out_string", types::SELF_TYPE, {Formal("arg", types::STR_TYPE)}, NoExpr());
+        static const auto OUT_INT = Method("out_int", types::SELF_TYPE, {Formal("arg", types::INT_TYPE)}, NoExpr());
+        static const auto IN_INT = Method("in_int", types::INT_TYPE, {}, NoExpr());
+        static const auto IN_STRING = Method("in_string", types::STR_TYPE, {}, NoExpr());
 
-    static const auto IO = Class(IO_TYPE, OBJ_TYPE,
-                                      {
-                                              Method("out_string", {Formal("arg", STR_TYPE)}, SELF_TYPE, NoExpr()),
-                                              Method("out_int", {Formal("arg", INT_TYPE)}, SELF_TYPE, NoExpr()),
-                                              Method("in_int", std::vector<Formal>(), INT_TYPE, NoExpr()),
-                                              Method("in_string", std::vector<Formal>(), STR_TYPE, NoExpr())
-                                      },
-                                      BASE_FILENAME);
+        // String methods
+        static const auto LENGTH = Method("length", types::INT_TYPE, {}, NoExpr());
+        static const auto CONCAT = Method("concat", types::STR_TYPE, {Formal("arg", types::STR_TYPE)}, NoExpr());
+        static const auto SUBSTR = Method("substr", types::STR_TYPE, {Formal("f", types::INT_TYPE), Formal("t", types::INT_TYPE)}, NoExpr());
+    }
 
-    static const auto Int = Class(INT_TYPE, OBJ_TYPE, {Attribute("_val", "_prim_slot", NoExpr())}, BASE_FILENAME);
+    namespace attributes {
+        // Int attributes
+        static const Attribute INT_VAL = Attribute("_val", "_prim_slot_", NoExpr());
 
-    static const auto Bool = Class(BOOL_TYPE, OBJ_TYPE, {Attribute("_val", "_prim_slot", NoExpr())},
-                                        BASE_FILENAME);
+        // Bool attributes
+        static const Attribute BOOL_VAL = Attribute("_val", "_prim_slot", NoExpr());
 
-    static const auto Str = Class(STR_TYPE,
-                                       OBJ_TYPE,
-                                       {
-                                               Attribute("val", INT_TYPE, NoExpr()),
-                                               Attribute("_str_field", "_prim_slot", NoExpr()),
-                                               Method("length", std::vector<Formal>(), INT_TYPE, NoExpr()),
-                                               Method("concat", {Formal("arg", STR_TYPE)}, STR_TYPE, NoExpr()),
-                                               Method("substr", {Formal("arg", INT_TYPE), Formal("arg2", INT_TYPE)},
-                                                      STR_TYPE, NoExpr())
+        //String attributes
+        static const Attribute STR_LEN = Attribute("len", types::INT_TYPE, NoExpr());
+        static const Attribute STR_VAL = Attribute("_val", "_prim_slot", NoExpr());
+    }
 
-                                       },
-                                       BASE_FILENAME);
+    static const auto Object = Class(types::OBJ_TYPE, types::NO_CLASS_TYPE, FILENAME,
+                                     {&methods::ABORT, &methods::TYPE_NAME, &methods::COPY});
+
+    static const auto IO = Class(types::IO_TYPE, types::OBJ_TYPE, FILENAME,
+                                 {&methods::OUT_STRING, &methods::OUT_INT, &methods::IN_INT, &methods::IN_STRING});
+
+    static const auto Int = Class(types::INT_TYPE, types::OBJ_TYPE, FILENAME, {&attributes::INT_VAL});
+
+    static const auto Bool = Class(types::BOOL_TYPE, types::OBJ_TYPE, FILENAME, {&attributes::BOOL_VAL});
+
+    static const auto Str = Class(types::STR_TYPE, types::OBJ_TYPE, FILENAME,
+                                  {&attributes::STR_LEN, &attributes::STR_VAL,
+                                   &methods::LENGTH, &methods::CONCAT, &methods::SUBSTR});
 }
-
 
 #endif //CLASS_H

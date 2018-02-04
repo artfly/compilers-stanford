@@ -7,9 +7,20 @@
 
 #include <ostream>
 
+class NodeVisitor;
 
 class TreeNode {
 public:
+    explicit TreeNode(int line_number = 0) : line_number(line_number) {}
+
+    virtual ~TreeNode() = default;
+
+    virtual void accept(const NodeVisitor &visitor) const = 0;
+
+    const int get_line_number() const {
+        return line_number;
+    }
+
     bool operator==(const TreeNode &rhs) const {
         return line_number == rhs.line_number;
     }
@@ -18,18 +29,8 @@ public:
         return !(rhs == *this);
     }
 
-public:
-//    virtual ~TreeNode();
-//
-//    // TODO
-//    virtual TreeNode * copy();
-//
-//    virtual void dump(std::ostream & os, int n);
-//
-//    // TODO
-//    virtual TreeNode * set();
-
-    int line_number;
+private:
+    const int line_number;
 };
 
 

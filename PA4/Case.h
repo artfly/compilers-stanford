@@ -5,29 +5,43 @@
 #ifndef CASE_H
 #define CASE_H
 
-#include <utility>
-
 #include "TreeNode.h"
-#include "Expression.h"
 
 class Expression;
 
-class Case : TreeNode {
+class Case : public TreeNode {
+public:
+    explicit Case(int line_number = 0) : TreeNode(line_number) {}
 };
 
 
-class Branch : Case {
+class Branch : public Case {
 public:
-    Branch(std::string name, std::string type_decl, Expression &expr) : name(std::move(name)),
-                                                                        type_decl(std::move(type_decl)),
-                                                                        expr(expr) {}
+    Branch(std::string name, std::string type_decl, const Expression &expr, int line_number = 0) :
+            Case(line_number), name(std::move(name)), type_decl(std::move(type_decl)), expr(expr) {}
+
+    void accept(const NodeVisitor &visitor) const override {
+        visitor.visit(*this);
+    }
+
+    const std::string &get_name() const {
+        return name;
+    }
+
+    const std::string &get_type_decl() const {
+        return type_decl;
+    }
+
+    const Expression &get_expr() const {
+        return expr;
+    }
 
 private:
-    std::string name;
+    const std::string name;
 
-    std::string type_decl;
+    const std::string type_decl;
 
-    Expression &expr;
+    const Expression &expr;
 };
 
 #endif //CASE_H
